@@ -2,3 +2,7 @@ packages:
   - "packages/*"
   - "auth-provider/*"
   - "applications/*"
+
+allowBuilds:
+  "@prisma/engines": true
+  prisma: true
