@@ -1,0 +1,29 @@
+{
+	admin off
+	auto_https off
+	log {
+		format console
+	}
+}
+
+# Make sure to set custom hosts in /etc/hosts for this to work
+# Add this line to /etc/hosts
+
+# 127.0.0.1  auth.gapura.test keraton.gapura.test joglo.gapura.test
+
+http://auth.gapura.test {
+	handle /admin* {
+		reverse_proxy control-panel:3000
+	}
+	handle {
+		reverse_proxy auth-server:3000
+	}
+}
+
+http://keraton.gapura.test {
+	reverse_proxy keraton:3000
+}
+
+http://joglo.gapura.test {
+	reverse_proxy joglo:3000
+}
