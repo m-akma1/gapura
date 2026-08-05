@@ -66,7 +66,7 @@ services:
       context: .
       dockerfile: docker/node.Dockerfile
       args:
-        SERVICE: "@gapura/auth-server"
+        SERVICE_PATH: auth-provider/server
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/gapura
@@ -82,6 +82,29 @@ services:
         condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+
+  control-panel:
+    build:
+      context: .
+      dockerfile: docker/node.Dockerfile
+      args:
+        SERVICE_PATH: auth-provider/control-panel
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/gapura
+      AUTH_ISSUER: ${AUTH_ISSUER}
+      LOG_LEVEL: ${LOG_LEVEL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/admin/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 10s
       timeout: 5s
       retries: 6
