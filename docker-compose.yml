@@ -37,6 +37,30 @@ services:
       retries: 12
       start_period: 20s
 
+  migrator:
+    build:
+      context: .
+      dockerfile: docker/migrator.Dockerfile
+    restart: "no"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      AUTH_ISSUER: ${AUTH_ISSUER}
+      KERATON_BASE_URL: ${KERATON_BASE_URL}
+      JOGLO_BASE_URL: ${JOGLO_BASE_URL}
+      SEED_ADMIN_NAME: ${SEED_ADMIN_NAME}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD}
+      KERATON_CLIENT_ID: ${KERATON_CLIENT_ID}
+      KERATON_CLIENT_SECRET: ${KERATON_CLIENT_SECRET}
+      JOGLO_CLIENT_ID: ${JOGLO_CLIENT_ID}
+      JOGLO_CLIENT_SECRET: ${JOGLO_CLIENT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   proxy:
     image: caddy:2-alpine
     restart: unless-stopped
