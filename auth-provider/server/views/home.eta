@@ -1,8 +1,47 @@
 <hgroup>
-  <h1 class="gate-mark">Gapura</h1>
-  <p class="muted">Identity and authorization provider</p>
+  <h1>Hello, <%= it.user.name %></h1>
+  <p class="muted"><%= it.user.email %></p>
 </hgroup>
-<p>
-  This is the gate. Applications delegate authentication here, and sessions are
-  revoked from here.
-</p>
+
+<section>
+  <h2>Applications</h2>
+  <div class="grid">
+    <% it.applications.forEach(function (app) { %>
+      <article>
+        <strong><%= app.name %></strong>
+        <% if (app.launchUrl) { %>
+          <p><a href="<%= app.launchUrl %>" role="button" class="secondary">Open <%= app.name %></a></p>
+        <% } %>
+      </article>
+    <% }) %>
+  </div>
+</section>
+
+<section>
+  <h2>Central sessions</h2>
+  <p class="muted">
+    One row per browser. An SSO logout ends the session it was performed from and
+    revokes every access token minted by it.
+  </p>
+  <figure>
+    <table>
+      <thead>
+        <tr><th>Started</th><th>Expires</th><th>Address</th><th></th></tr>
+      </thead>
+      <tbody>
+        <% it.sessions.forEach(function (s) { %>
+          <tr>
+            <td><%= s.createdAt.toISOString().replace("T", " ").slice(0, 19) %></td>
+            <td><%= s.expiresAt.toISOString().replace("T", " ").slice(0, 19) %></td>
+            <td><code><%= s.ipAddress || "unknown" %></code></td>
+            <td>
+              <% if (s.id === it.currentSessionId) { %>
+                <small class="muted">this browser</small>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </figure>
+</section>

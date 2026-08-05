@@ -4,6 +4,7 @@ import { createPrismaClient, type PrismaClient } from "@gapura/auth-core";
 import { errorHandler, requestId } from "@gapura/http-kit";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { ServerEnv } from "./env.js";
+import { registerAuthRoutes } from "./routes/auth.js";
 import { registerHomeRoutes } from "./routes/home.js";
 import { registerHealthRoutes } from "./routes/health.js";
 import { renderPage } from "./views.js";
@@ -45,6 +46,7 @@ export function buildApp(env: ServerEnv): FastifyInstance {
 
   void app.register(registerHealthRoutes);
   void app.register(registerHomeRoutes);
+  void app.register(registerAuthRoutes);
 
   app.addHook("onClose", async (instance) => {
     await instance.ctx.prisma.$disconnect();
