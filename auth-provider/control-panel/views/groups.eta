@@ -1,0 +1,31 @@
+<hgroup>
+  <h1>Groups</h1>
+  <p class="muted">Access is granted to groups, not directly to users.</p>
+</hgroup>
+
+<figure>
+  <table>
+    <thead><tr><th>Name</th><th>Description</th><th>Members</th><th>Policies</th></tr></thead>
+    <tbody>
+      <% it.groups.forEach(function (g) { %>
+        <tr>
+          <td><a href="/admin/groups/<%= g.id %>"><%= g.name %></a></td>
+          <td class="muted"><%= g.description || "" %></td>
+          <td><%= g._count.members %></td>
+          <td><%= g._count.policies %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</figure>
+
+<article>
+  <header><strong>Create group</strong></header>
+  <form method="post" action="/admin/groups">
+    <div class="grid">
+      <label>Name<input name="name" required></label>
+      <label>Description<input name="description"></label>
+    </div>
+    <button type="submit">Create group</button>
+  </form>
+</article>

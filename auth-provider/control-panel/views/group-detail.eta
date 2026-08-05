@@ -1,0 +1,53 @@
+<hgroup>
+  <h1><%= it.group.name %></h1>
+  <p class="muted"><%= it.group.description || "No description" %></p>
+</hgroup>
+<p><a href="/admin/groups">Back to groups</a></p>
+
+<section>
+  <h2>Members</h2>
+  <figure>
+    <table>
+      <thead><tr><th>Name</th><th>Email</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <% it.group.members.forEach(function (m) { %>
+          <tr>
+            <td><a href="/admin/users/<%= m.user.id %>"><%= m.user.name %></a></td>
+            <td><%= m.user.email %></td>
+            <td><%= m.user.status %></td>
+            <td class="row-actions">
+              <form method="post" action="/admin/users/<%= m.user.id %>/groups/<%= it.group.id %>/remove">
+                <button type="submit" class="secondary outline">Remove</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </figure>
+  <% if (it.candidates.length > 0) { %>
+    <form method="post" action="/admin/groups/<%= it.group.id %>/members">
+      <div class="grid">
+        <select name="user_id" required>
+          <% it.candidates.forEach(function (u) { %>
+            <option value="<%= u.id %>"><%= u.name %> (<%= u.email %>)</option>
+          <% }) %>
+        </select>
+        <button type="submit">Add member</button>
+      </div>
+    </form>
+  <% } %>
+</section>
+
+<section>
+  <h2>Application access</h2>
+  <% if (it.group.policies.length === 0) { %>
+    <p class="muted">This group grants access to no applications.</p>
+  <% } else { %>
+    <ul>
+      <% it.group.policies.forEach(function (p) { %>
+        <li><a href="/admin/applications/<%= p.application.id %>"><%= p.application.name %></a> - <%= p.effect %></li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>

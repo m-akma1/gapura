@@ -1,0 +1,38 @@
+<hgroup>
+  <h1>Applications</h1>
+  <p class="muted">OAuth clients of this provider.</p>
+</hgroup>
+
+<figure>
+  <table>
+    <thead><tr><th>Name</th><th>Client id</th><th>Status</th><th>Redirect URIs</th><th>Policies</th></tr></thead>
+    <tbody>
+      <% it.applications.forEach(function (a) { %>
+        <tr>
+          <td><a href="/admin/applications/<%= a.id %>"><%= a.name %></a></td>
+          <td><code><%= a.clientId %></code></td>
+          <td><%= a.status %></td>
+          <td><%= a._count.redirectUris %></td>
+          <td><%= a._count.policies %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</figure>
+
+<article>
+  <header><strong>Register application</strong></header>
+  <p class="muted">The client secret is shown once on the next screen, cannot be retrieved afterwards.</p>
+  <form method="post" action="/admin/applications">
+    <div class="grid">
+      <label>Name<input name="name" required></label>
+      <label>Client id<input name="client_id" required></label>
+    </div>
+    <div class="grid">
+      <label>Launch URL<input name="launch_url" type="url"></label>
+      <label>Logout notification URL<input name="logout_notification_url" type="url" required></label>
+    </div>
+    <label>Redirect URI<input name="redirect_uri" type="url" required></label>
+    <button type="submit">Register application</button>
+  </form>
+</article>

@@ -1,0 +1,33 @@
+<hgroup>
+  <h1>Users</h1>
+  <p class="muted">Identity and credentials. Admin capability comes from group membership.</p>
+</hgroup>
+
+<figure>
+  <table>
+    <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Groups</th><th>Sessions</th></tr></thead>
+    <tbody>
+      <% it.users.forEach(function (u) { %>
+        <tr>
+          <td><a href="/admin/users/<%= u.id %>"><%= u.name %></a></td>
+          <td><%= u.email %></td>
+          <td><%= u.status %></td>
+          <td><%= u._count.memberships %></td>
+          <td><%= u._count.ssoSessions %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</figure>
+
+<article>
+  <header><strong>Create user</strong></header>
+  <form method="post" action="/admin/users">
+    <div class="grid">
+      <label>Name<input name="name" required></label>
+      <label>Email<input type="email" name="email" required></label>
+      <label>Password<input type="password" name="password" required minlength="8"></label>
+    </div>
+    <button type="submit">Create user</button>
+  </form>
+</article>

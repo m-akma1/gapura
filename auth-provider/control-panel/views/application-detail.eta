@@ -1,0 +1,82 @@
+<hgroup>
+  <h1><%= it.application.name %></h1>
+  <p class="muted"><code><%= it.application.clientId %></code> - <%= it.application.status %></p>
+</hgroup>
+<p><a href="/admin/applications">Back to applications</a></p>
+
+<div class="grid">
+  <article>
+    <header><strong>Configuration</strong></header>
+    <p><small class="muted">Launch URL</small><br><%= it.application.launchUrl || "not set" %></p>
+    <p><small class="muted">Logout notification URL</small><br><code><%= it.application.logoutNotificationUrl %></code></p>
+  </article>
+  <article>
+    <header><strong>Client secret</strong></header>
+    <p class="muted">Stored as a hash.</p>
+    <form method="post" action="/admin/applications/<%= it.application.id %>/secret">
+      <button type="submit" class="secondary">Regenerate secret</button>
+    </form>
+  </article>
+</div>
+
+<section>
+  <h2>Redirect URIs</h2>
+  <p class="muted">Matched at /authorize</p>
+  <figure>
+    <table>
+      <tbody>
+        <% it.application.redirectUris.forEach(function (r) { %>
+          <tr>
+            <td><code><%= r.redirectUri %></code></td>
+            <td class="row-actions">
+              <form method="post" action="/admin/applications/<%= it.application.id %>/redirect-uris/<%= r.id %>/delete">
+                <button type="submit" class="secondary outline">Remove</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </figure>
+  <form method="post" action="/admin/applications/<%= it.application.id %>/redirect-uris">
+    <div class="grid">
+      <input name="redirect_uri" type="url" placeholder="http://app.gapura.test/callback" required>
+      <button type="submit">Add redirect URI</button>
+    </div>
+  </form>
+</section>
+
+<section>
+  <h2>Access policies</h2>
+  <p class="muted">Members of these groups may sign in to this application.</p>
+  <figure>
+    <table>
+      <thead><tr><th>Group</th><th>Effect</th><th></th></tr></thead>
+      <tbody>
+        <% it.application.policies.forEach(function (p) { %>
+          <tr>
+            <td><a href="/admin/groups/<%= p.group.id %>"><%= p.group.name %></a></td>
+            <td><%= p.effect %></td>
+            <td class="row-actions">
+              <form method="post" action="/admin/applications/<%= it.application.id %>/policies/<%= p.id %>/delete">
+                <button type="submit" class="secondary outline">Remove</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </figure>
+  <% if (it.availableGroups.length > 0) { %>
+    <form method="post" action="/admin/applications/<%= it.application.id %>/policies">
+      <div class="grid">
+        <select name="group_id" required>
+          <% it.availableGroups.forEach(function (g) { %>
+            <option value="<%= g.id %>"><%= g.name %></option>
+          <% }) %>
+        </select>
+        <button type="submit">Grant access</button>
+      </div>
+    </form>
+  <% } %>
+</section>

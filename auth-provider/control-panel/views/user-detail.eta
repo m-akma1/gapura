@@ -1,0 +1,86 @@
+<hgroup>
+  <h1><%= it.user.name %></h1>
+  <p class="muted"><%= it.user.email %> - <%= it.user.status %></p>
+</hgroup>
+<p><a href="/admin/users">Back to users</a></p>
+
+<div class="grid">
+  <article>
+    <header><strong>Details</strong></header>
+    <form method="post" action="/admin/users/<%= it.user.id %>">
+      <label>Name<input name="name" value="<%= it.user.name %>" required></label>
+      <label>Email<input type="email" name="email" value="<%= it.user.email %>" required></label>
+      <button type="submit">Save</button>
+    </form>
+  </article>
+
+  <article>
+    <header><strong>Status</strong></header>
+    <p class="muted">
+      Deactivating revokes every central session this user holds and ends their
+      local sessions in each application.
+    </p>
+    <form method="post" action="/admin/users/<%= it.user.id %>/status">
+      <input type="hidden" name="status" value="<%= it.user.status === 'active' ? 'inactive' : 'active' %>">
+      <button type="submit" class="<%= it.user.status === 'active' ? 'secondary' : '' %>">
+        <%= it.user.status === 'active' ? 'Deactivate user' : 'Activate user' %>
+      </button>
+    </form>
+  </article>
+</div>
+
+<section>
+  <h2>Group membership</h2>
+  <figure>
+    <table>
+      <thead><tr><th>Group</th><th></th></tr></thead>
+      <tbody>
+        <% it.user.memberships.forEach(function (m) { %>
+          <tr>
+            <td><a href="/admin/groups/<%= m.group.id %>"><%= m.group.name %></a></td>
+            <td class="row-actions">
+              <form method="post" action="/admin/users/<%= it.user.id %>/groups/<%= m.group.id %>/remove">
+                <button type="submit" class="secondary outline">Remove</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </figure>
+  <% if (it.availableGroups.length > 0) { %>
+    <form method="post" action="/admin/users/<%= it.user.id %>/groups">
+      <div class="grid">
+        <select name="group_id" required>
+          <% it.availableGroups.forEach(function (g) { %>
+            <option value="<%= g.id %>"><%= g.name %></option>
+          <% }) %>
+        </select>
+        <button type="submit">Add to group</button>
+      </div>
+    </form>
+  <% } %>
+</section>
+
+<section>
+  <h2>Active central sessions</h2>
+  <figure>
+    <table>
+      <thead><tr><th>Started</th><th>Expires</th><th>Address</th><th></th></tr></thead>
+      <tbody>
+        <% it.user.ssoSessions.forEach(function (s) { %>
+          <tr>
+            <td><small><%= s.createdAt.toISOString().replace("T"," ").slice(0,19) %></small></td>
+            <td><small><%= s.expiresAt.toISOString().replace("T"," ").slice(0,19) %></small></td>
+            <td><code><%= s.ipAddress || "unknown" %></code></td>
+            <td class="row-actions">
+              <form method="post" action="/admin/sessions/<%= s.id %>/revoke">
+                <button type="submit" class="secondary outline">Revoke</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </figure>
+</section>

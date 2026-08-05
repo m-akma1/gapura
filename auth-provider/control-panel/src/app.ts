@@ -5,7 +5,11 @@ import { errorHandler, requestId } from "@gapura/http-kit";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { PanelEnv } from "./env.js";
 import { registerGuard } from "./guard.js";
+import { registerApplicationRoutes } from "./routes/applications.js";
 import { registerDashboardRoutes } from "./routes/dashboard.js";
+import { registerGroupRoutes } from "./routes/groups.js";
+import { registerMembershipRoutes } from "./routes/membership.js";
+import { registerUserRoutes } from "./routes/users.js";
 import { renderPage } from "./views.js";
 
 export interface PanelContext {
@@ -49,6 +53,10 @@ export function buildApp(env: PanelEnv): FastifyInstance {
 
   void app.register(registerGuard);
   void app.register(registerDashboardRoutes);
+  void app.register(registerUserRoutes);
+  void app.register(registerGroupRoutes);
+  void app.register(registerApplicationRoutes);
+  void app.register(registerMembershipRoutes);
 
   app.addHook("onClose", async (instance) => {
     await instance.ctx.prisma.$disconnect();
