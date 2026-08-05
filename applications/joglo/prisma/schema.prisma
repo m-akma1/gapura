@@ -1,0 +1,81 @@
+// The joglo local database. Identical in shape to the other relying app by
+// construction, but deliberately not shared: separate databases are what make
+// the two apps' local sessions independent.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated"
+  runtime  = "nodejs"
+  // Without these the generated client's internal imports keep .ts extensions,
+  // which survive compilation and fail to resolve under Node ESM.
+  moduleFormat        = "esm"
+  importFileExtension = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum LocalSessionStatus {
+  active
+  expired
+  revoked
+}
+
+model LocalSession {
+  id               String             @id @default(uuid()) @db.Uuid
+  sessionTokenHash String             @unique @map("session_token_hash")
+  externalUserId   String             @map("external_user_id") @db.Uuid
+  // Supplied by the /token response. SessionRevoked matches on this column and
+  // not on the user, so one browser's logout cannot kill another's session.
+  centralSessionId String             @map("central_session_id") @db.Uuid
+  status           LocalSessionStatus @default(active)
+  createdAt        DateTime           @default(now()) @map("created_at")
+  expiresAt        DateTime           @map("expires_at")
+  lastActivityAt   DateTime?          @map("last_activity_at")
+  revokedAt        DateTime?          @map("revoked_at")
+  revokeReason     String?            @map("revoke_reason")
+
+  // No application_id column: the spec makes it conditional on apps sharing a
+  // database, and they do not.
+  @@index([externalUserId, status])
+  @@index([centralSessionId, status])
+  @@map("local_sessions")
+}
+
+model ProfileCache {
+  externalUserId String   @id @map("external_user_id") @db.Uuid
+  name           String
+  email          String
+  groups         Json?
+  syncedAt       DateTime @map("synced_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Kept out of local_sessions because one user may hold several local sessions.
+  // Never the primary source of identity.
+  @@map("profile_cache")
+}
+
+model ProcessedEvent {
+  eventId     String   @id @map("event_id") @db.Uuid
+  eventType   String   @map("event_type")
+  processedAt DateTime @default(now()) @map("processed_at")
+  result      String
+
+  // The primary key is the idempotency guarantee: the relay gives every app a
+  // copy of one event sharing a single eventId, so a redelivery collides here.
+  @@map("processed_events")
+}
+
+model ActivityLog {
+  id            String   @id @default(uuid()) @db.Uuid
+  correlationId String?  @map("correlation_id")
+  event         String
+  detail        Json?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  // Required by F04's UI, absent from its table list. See decisions 14.1.
+  @@index([createdAt])
+  @@map("activity_logs")
+}
