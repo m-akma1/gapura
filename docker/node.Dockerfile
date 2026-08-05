@@ -16,7 +16,7 @@ COPY auth-provider ./auth-provider
 COPY applications ./applications
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile
-RUN pnpm -r exec prisma generate || true
+RUN pnpm -r run generate
 RUN pnpm -r build
 RUN pnpm --filter "${SERVICE}" deploy --prod --legacy /out
 
