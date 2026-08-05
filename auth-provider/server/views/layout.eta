@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= it.title %><% if (it.title !== "Gapura") { %> - Gapura<% } %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <style>
+    :root { --pico-primary: #7a5c2e; --pico-primary-background: #7a5c2e; }
+    .gate-mark { font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+    .muted { color: var(--pico-muted-color); }
+    .stack > * + * { margin-top: .75rem; }
+  </style>
+</head>
+<body>
+  <header class="container">
+    <nav>
+      <ul>
+        <li><a href="/" class="gate-mark contrast">Gapura</a></li>
+      </ul>
+      <ul>
+        <% if (it.currentUser) { %>
+          <li class="muted"><%= it.currentUser.name %></li>
+          <% if (it.isAdmin) { %><li><a href="/admin">Control panel</a></li><% } %>
+          <li><a href="/password">Password</a></li>
+          <li>
+            <form method="post" action="/logout" style="margin:0">
+              <button type="submit" class="secondary">SSO logout</button>
+            </form>
+          </li>
+        <% } %>
+      </ul>
+    </nav>
+  </header>
+  <main class="container">
+    <%~ it.body %>
+  </main>
+  <footer class="container">
+    <small class="muted">Gapura identity provider</small>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,8 @@
+<hgroup>
+  <h1 class="gate-mark">Gapura</h1>
+  <p class="muted">Identity and authorization provider</p>
+</hgroup>
+<p>
+  This is the gate. Applications delegate authentication here, and sessions are
+  revoked from here.
+</p>

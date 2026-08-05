@@ -61,6 +61,32 @@ services:
       postgres:
         condition: service_healthy
 
+  auth-server:
+    build:
+      context: .
+      dockerfile: docker/node.Dockerfile
+      args:
+        SERVICE: "@gapura/auth-server"
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/gapura
+      AUTH_ISSUER: ${AUTH_ISSUER}
+      AUTH_CODE_TTL_SECONDS: ${AUTH_CODE_TTL_SECONDS}
+      ACCESS_TOKEN_TTL_SECONDS: ${ACCESS_TOKEN_TTL_SECONDS}
+      CENTRAL_SESSION_TTL_SECONDS: ${CENTRAL_SESSION_TTL_SECONDS}
+      LOG_LEVEL: ${LOG_LEVEL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+
   proxy:
     image: caddy:2-alpine
     restart: unless-stopped
