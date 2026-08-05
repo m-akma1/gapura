@@ -1,0 +1,30 @@
+<hgroup>
+  <h1>Control panel</h1>
+  <p class="muted">Users, groups, applications, and access policies</p>
+</hgroup>
+
+<div class="grid">
+  <article><strong><%= it.users %></strong><br><small class="muted">users</small></article>
+  <article><strong><%= it.groups %></strong><br><small class="muted">groups</small></article>
+  <article><strong><%= it.applications %></strong><br><small class="muted">applications</small></article>
+  <article><strong><%= it.policies %></strong><br><small class="muted">policies</small></article>
+  <article><strong><%= it.activeSessions %></strong><br><small class="muted">active sessions</small></article>
+</div>
+
+<section>
+  <h2>Recent activity</h2>
+  <figure>
+    <table>
+      <thead><tr><th>When</th><th>Event</th><th>Result</th></tr></thead>
+      <tbody>
+        <% it.recentAudit.forEach(function (row) { %>
+          <tr>
+            <td><small><%= row.createdAt.toISOString().replace("T"," ").slice(0,19) %></small></td>
+            <td><code><%= row.eventType %></code></td>
+            <td><%= row.result %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </figure>
+</section>

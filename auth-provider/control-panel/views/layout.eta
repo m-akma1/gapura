@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= it.title %> - Gapura admin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <style>
+    :root { --pico-primary: #43607a; --pico-primary-background: #43607a; }
+    .gate-mark { font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+    .muted { color: var(--pico-muted-color); }
+    .flash { border-left: 4px solid var(--pico-primary); padding-left: .75rem; }
+    td form { margin: 0; display: inline; }
+    .row-actions { white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <header class="container">
+    <nav>
+      <ul>
+        <li><a href="/" class="gate-mark contrast">Gapura</a></li>
+        <li class="muted">control panel</li>
+      </ul>
+      <ul>
+        <li><a href="/admin/users" <%= it.activeNav === "users" ? 'aria-current="page"' : "" %>>Users</a></li>
+        <li><a href="/admin/groups" <%= it.activeNav === "groups" ? 'aria-current="page"' : "" %>>Groups</a></li>
+        <li><a href="/admin/applications" <%= it.activeNav === "applications" ? 'aria-current="page"' : "" %>>Applications</a></li>
+        <% if (it.currentUser) { %><li class="muted"><%= it.currentUser.name %></li><% } %>
+      </ul>
+    </nav>
+  </header>
+  <main class="container">
+    <% if (it.flash) { %><p class="flash"><%= it.flash %></p><% } %>
+    <%~ it.body %>
+  </main>
+</body>
+</html>

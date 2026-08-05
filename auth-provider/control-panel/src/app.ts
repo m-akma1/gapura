@@ -1,6 +1,17 @@
-import { createPrismaClient } from "@gapura/auth-core";
+import cookie from "@fastify/cookie";
+import formbody from "@fastify/formbody";
+import { createPrismaClient, type PrismaClient } from "@gapura/auth-core";
+import { errorHandler, requestId } from "@gapura/http-kit";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { PanelEnv } from "./env.js";
+import { registerGuard } from "./guard.js";
+import { registerDashboardRoutes } from "./routes/dashboard.js";
+import { renderPage } from "./views.js";
+
+export interface PanelContext {
+  env: PanelEnv;
+  prisma: PrismaClient;
+}
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -15,5 +26,33 @@ export function buildApp(env: PanelEnv): FastifyInstance {
   });
 
   app.decorate("ctx", { env, prisma: createPrismaClient(env.databaseUrl) });
+
+  void app.register(cookie);
+  void app.register(formbody);
+  void app.register(requestId);
+  void app.register(errorHandler, {
+    renderPage: (reply, view) =>
+      reply
+        .type("text/html; charset=utf-8")
+        .send(renderPage("error", view, { title: "Error" })),
+  });
+
+  // Caddy forwards the full path, every route mounted under /admin.
+  app.get("/admin/healthz", async (_request, reply) => {
+    try {
+      await app.ctx.prisma.$queryRaw`SELECT 1`;
+      return { status: "ok" };
+    } catch {
+      return reply.status(503).send({ status: "unavailable" });
+    }
+  });
+
+  void app.register(registerGuard);
+  void app.register(registerDashboardRoutes);
+
+  app.addHook("onClose", async (instance) => {
+    await instance.ctx.prisma.$disconnect();
+  });
+
   return app;
 }
