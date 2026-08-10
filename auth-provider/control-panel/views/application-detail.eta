@@ -11,6 +11,19 @@
     <p><small class="muted">Logout notification URL</small><br><code><%= it.application.logoutNotificationUrl %></code></p>
   </article>
   <article>
+    <header><strong>Status</strong></header>
+    <p class="muted">
+      Deactivating stops the authorization flow and revokes local sessions for
+      everyone who could reach this application.
+    </p>
+    <form method="post" action="/admin/applications/<%= it.application.id %>/status">
+      <input type="hidden" name="status" value="<%= it.application.status === 'active' ? 'inactive' : 'active' %>">
+      <button type="submit" class="<%= it.application.status === 'active' ? 'secondary' : '' %>">
+        <%= it.application.status === 'active' ? 'Deactivate' : 'Activate' %>
+      </button>
+    </form>
+  </article>
+  <article>
     <header><strong>Client secret</strong></header>
     <p class="muted">Stored as a hash.</p>
     <form method="post" action="/admin/applications/<%= it.application.id %>/secret">

@@ -2,7 +2,10 @@ import {
   AuditEvent,
   AuditResult,
   emitEvent,
+  membersOfGroup,
   revokeSession,
+  usersWithPolicyOn,
+  withAccessDiff,
   writeAudit,
 } from "@gapura/auth-core";
 import { EventType, RevokeReason } from "@gapura/contracts";
@@ -49,9 +52,18 @@ export async function registerMembershipRoutes(
     "/admin/users/:id/groups/:groupId/remove",
     async (request, reply) => {
       await prisma.$transaction(async (tx) => {
-        await tx.userGroup.deleteMany({
-          where: { userId: request.params.id, groupId: request.params.groupId },
-        });
+        await withAccessDiff(
+          tx,
+          { userIds: [request.params.id], correlationId: request.correlationId },
+          async () => {
+            await tx.userGroup.deleteMany({
+              where: {
+                userId: request.params.id,
+                groupId: request.params.groupId,
+              },
+            });
+          },
+        );
         await writeAudit(tx, {
           eventType: AuditEvent.GroupMemberRemoved,
           result: AuditResult.Success,
@@ -144,9 +156,22 @@ export async function registerMembershipRoutes(
     "/admin/applications/:id/policies/:policyId/delete",
     async (request, reply) => {
       await prisma.$transaction(async (tx) => {
-        await tx.applicationGroupPolicy.deleteMany({
-          where: { id: request.params.policyId, applicationId: request.params.id },
-        });
+        // Snapshot every user who reaches this application through any policy,
+        // not just the group being removed: some of them may keep access
+        // through a second group, and only the set difference knows which.
+        const affected = await usersWithPolicyOn(tx, request.params.id);
+        await withAccessDiff(
+          tx,
+          { userIds: affected, correlationId: request.correlationId },
+          async () => {
+            await tx.applicationGroupPolicy.deleteMany({
+              where: {
+                id: request.params.policyId,
+                applicationId: request.params.id,
+              },
+            });
+          },
+        );
         await writeAudit(tx, {
           eventType: AuditEvent.PolicyDeleted,
           result: AuditResult.Success,

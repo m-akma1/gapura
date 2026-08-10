@@ -1,4 +1,10 @@
-import { AuditEvent, AuditResult, writeAudit } from "@gapura/auth-core";
+import {
+  AuditEvent,
+  AuditResult,
+  usersWithPolicyOn,
+  withAccessDiff,
+  writeAudit,
+} from "@gapura/auth-core";
 import { hashPassword, randomToken } from "@gapura/crypto";
 import type { FastifyInstance } from "fastify";
 import { setFlash, takeFlash } from "../flash.js";
@@ -260,6 +266,39 @@ export async function registerApplicationRoutes(
       });
 
       setFlash(reply, "Redirect URI removed");
+      return reply.redirect(`/admin/applications/${request.params.id}`);
+    },
+  );
+
+  app.post<{ Params: { id: string }; Body: { status?: string } }>(
+    "/admin/applications/:id/status",
+    async (request, reply) => {
+      const target = request.body.status === "active" ? "active" : "inactive";
+
+      await prisma.$transaction(async (tx) => {
+        const affected = await usersWithPolicyOn(tx, request.params.id);
+        await withAccessDiff(
+          tx,
+          { userIds: affected, correlationId: request.correlationId },
+          async () => {
+            await tx.application.update({
+              where: { id: request.params.id },
+              data: { status: target },
+            });
+          },
+        );
+        await writeAudit(tx, {
+          eventType: AuditEvent.ApplicationUpdated,
+          result: AuditResult.Success,
+          actorId: request.admin.userId,
+          applicationId: request.params.id,
+          ipAddress: request.ip,
+          correlationId: request.correlationId,
+          metadata: { status: target },
+        });
+      });
+
+      setFlash(reply, target === "active" ? "Application activated" : "Application deactivated");
       return reply.redirect(`/admin/applications/${request.params.id}`);
     },
   );

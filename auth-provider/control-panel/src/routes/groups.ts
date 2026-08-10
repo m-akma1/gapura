@@ -1,4 +1,11 @@
-import { AuditEvent, AuditResult, writeAudit } from "@gapura/auth-core";
+import {
+  ADMIN_GROUP_NAME,
+  AuditEvent,
+  AuditResult,
+  membersOfGroup,
+  withAccessDiff,
+  writeAudit,
+} from "@gapura/auth-core";
 import type { FastifyInstance } from "fastify";
 import { setFlash, takeFlash } from "../flash.js";
 import { renderPage } from "../views.js";
@@ -114,4 +121,47 @@ export async function registerGroupRoutes(app: FastifyInstance): Promise<void> {
       ),
     );
   });
+
+  app.post<{ Params: { id: string } }>(
+    "/admin/groups/:id/delete",
+    async (request, reply) => {
+      const group = await prisma.group.findUnique({
+        where: { id: request.params.id },
+        select: { id: true, name: true },
+      });
+
+      if (group === null) {
+        setFlash(reply, "Group not found");
+        return reply.redirect("/admin/groups");
+      }
+
+      // Prevent default administrators group deletion
+      if (group.name === ADMIN_GROUP_NAME) {
+        setFlash(reply, "The administrators group cannot be deleted");
+        return reply.redirect(`/admin/groups/${group.id}`);
+      }
+
+      await prisma.$transaction(async (tx) => {
+        const affected = await membersOfGroup(tx, group.id);
+        await withAccessDiff(
+          tx,
+          { userIds: affected, correlationId: request.correlationId },
+          async () => {
+            await tx.group.delete({ where: { id: group.id } });
+          },
+        );
+        await writeAudit(tx, {
+          eventType: AuditEvent.GroupDeleted,
+          result: AuditResult.Success,
+          actorId: request.admin.userId,
+          ipAddress: request.ip,
+          correlationId: request.correlationId,
+          metadata: { groupId: group.id, name: group.name },
+        });
+      });
+
+      setFlash(reply, `Group ${group.name} deleted`);
+      return reply.redirect("/admin/groups");
+    },
+  );
 }

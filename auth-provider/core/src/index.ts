@@ -5,4 +5,5 @@ export * from "./env.js";
 export * from "./evaluate.js";
 export * from "./json.js";
 export * from "./outbox.js";
+export * from "./policy-diff.js";
 export * from "./session.js";

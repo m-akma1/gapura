@@ -51,3 +51,14 @@
     </ul>
   <% } %>
 </section>
+
+<section>
+  <h2>Delete group</h2>
+  <p class="muted">
+    Removes every membership and every policy attached to this group. Members
+    who lose access to an application have their local sessions there revoked.
+  </p>
+  <form method="post" action="/admin/groups/<%= it.group.id %>/delete">
+    <button type="submit" class="secondary">Delete group</button>
+  </form>
+</section>
