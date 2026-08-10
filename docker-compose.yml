@@ -110,6 +110,39 @@ services:
       retries: 6
       start_period: 10s
 
+  sync-worker:
+    build:
+      context: .
+      dockerfile: docker/node.Dockerfile
+      args:
+        SERVICE_PATH: auth-provider/sync-worker
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/gapura
+      AMQP_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}
+      AUTH_ISSUER: ${AUTH_ISSUER}
+      OUTBOX_POLL_INTERVAL_MS: ${OUTBOX_POLL_INTERVAL_MS}
+      OUTBOX_BATCH_SIZE: ${OUTBOX_BATCH_SIZE}
+      DELIVERY_MAX_ATTEMPTS: ${DELIVERY_MAX_ATTEMPTS}
+      DELIVERY_TIMEOUT_MS: ${DELIVERY_TIMEOUT_MS}
+      LOGOUT_SIGNING_SECRET_KERATON: ${LOGOUT_SIGNING_SECRET_KERATON}
+      LOGOUT_SIGNING_SECRET_JOGLO: ${LOGOUT_SIGNING_SECRET_JOGLO}
+      LIVENESS_FILE: /tmp/worker.alive
+      LOG_LEVEL: ${LOG_LEVEL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "const{statSync}=require('fs');process.exit(Date.now()-statSync('/tmp/worker.alive').mtimeMs<30000?0:1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+
   proxy:
     image: caddy:2-alpine
     restart: unless-stopped

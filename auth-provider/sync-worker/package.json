@@ -1,0 +1,24 @@
+{
+  "name": "@gapura/sync-worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "node --watch dist/main.js",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "@gapura/auth-core": "workspace:*",
+    "@gapura/contracts": "workspace:*",
+    "@gapura/crypto": "workspace:*",
+    "amqplib": "^0.10.9",
+    "pino": "^9.13.1"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.7",
+    "@types/node": "^22.20.1",
+    "typescript": "^5.9.3"
+  }
+}
