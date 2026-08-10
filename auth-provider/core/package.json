@@ -14,7 +14,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "generate": "prisma generate",
     "migrate:deploy": "prisma migrate deploy",
-    "migrate:dev": "prisma migrate dev"
+    "migrate:dev": "prisma migrate dev",
+    "test": "tsc -p tsconfig.test.json && node --test .test-dist/*.test.js"
   },
   "dependencies": {
     "@gapura/contracts": "workspace:*",
