@@ -3,6 +3,7 @@ import { createPrismaClient } from "@gapura/auth-core";
 import pino from "pino";
 import { connectWithRetry, openChannel } from "./broker.js";
 import { loadWorkerEnv } from "./env.js";
+import { OutboxRelay } from "./relay.js";
 import { declareTopology, routingKeyForApp } from "./topology.js";
 
 const env = loadWorkerEnv();
@@ -26,11 +27,22 @@ async function markAlive(): Promise<void> {
 }
 await markAlive();
 
+const relay = new OutboxRelay(
+  prisma,
+  channel,
+  log,
+  { intervalMs: env.outboxPollIntervalMs, batchSize: env.outboxBatchSize },
+  () => void markAlive(),
+);
+relay.start();
+log.info({ intervalMs: env.outboxPollIntervalMs }, "outbox relay started");
+
 let stopping = false;
 const shutdown = async (): Promise<void> => {
   if (stopping) return;
   stopping = true;
   log.info("shutting down");
+  await relay.stop();
   await channel.close().catch(() => undefined);
   await connection.close().catch(() => undefined);
   await prisma.$disconnect().catch(() => undefined);
