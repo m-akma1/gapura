@@ -3,6 +3,7 @@ import { createPrismaClient } from "@gapura/auth-core";
 import pino from "pino";
 import { connectWithRetry, openChannel } from "./broker.js";
 import { loadWorkerEnv } from "./env.js";
+import { DeliveryConsumer } from "./consumer.js";
 import { OutboxRelay } from "./relay.js";
 import { declareTopology, routingKeyForApp } from "./topology.js";
 
@@ -36,6 +37,11 @@ const relay = new OutboxRelay(
 );
 relay.start();
 log.info({ intervalMs: env.outboxPollIntervalMs }, "outbox relay started");
+
+const consumer = new DeliveryConsumer(prisma, channel, log, env);
+for (const key of routingKeys) {
+  await consumer.consume(`q.${key}`);
+}
 
 let stopping = false;
 const shutdown = async (): Promise<void> => {

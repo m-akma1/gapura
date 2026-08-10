@@ -34,10 +34,10 @@ export function loadWorkerEnv(): WorkerEnv {
   };
 }
 
-export function signingSecretFor(env: WorkerEnv, clientId: string): string {
-  const secret = env.signingSecrets.get(clientId);
+export function signingSecretFor(env: WorkerEnv, key: string): string {
+  const secret = env.signingSecrets.get(key);
   if (secret === undefined) {
-    throw new Error(`No LOGOUT_SIGNING_SECRET configured for client ${clientId}`);
+    throw new Error(`No LOGOUT_SIGNING_SECRET configured for application ${key}`);
   }
   return secret;
 }

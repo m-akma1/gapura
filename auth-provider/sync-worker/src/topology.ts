@@ -6,19 +6,23 @@ export const DLQ_QUEUE = "q.dlq";
 
 export const RETRY_DELAYS_MS = [1000, 2000, 4000, 8000, 16000] as const;
 
-export const MAX_ATTEMPTS = RETRY_DELAYS_MS.length;
+export const MAX_ATTEMPTS = RETRY_DELAYS_MS.length + 1;
 
 const label = (ms: number): string => `${ms / 1000}s`;
 
 export const retryExchange = (ms: number): string => `gapura.retry.${label(ms)}`;
 export const retryQueue = (ms: number): string => `q.retry.${label(ms)}`;
 
+export function appKey(clientId: string): string {
+  return clientId.replace(/-web$/, "");
+}
+
 export function queueForApp(clientId: string): string {
-  return `q.${clientId.replace(/-web$/, "")}`;
+  return `q.${appKey(clientId)}`;
 }
 
 export function routingKeyForApp(clientId: string): string {
-  return clientId.replace(/-web$/, "");
+  return appKey(clientId);
 }
 
 export async function declareTopology(
