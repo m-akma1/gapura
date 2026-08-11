@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@gapura/contracts": "workspace:*",
+    "@gapura/lifecycle": "workspace:*",
     "fastify": "^5.6.1",
     "fastify-plugin": "^5.1.0"
   },
