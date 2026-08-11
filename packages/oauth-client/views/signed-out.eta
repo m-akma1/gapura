@@ -1,0 +1,26 @@
+<hgroup>
+  <h1 class="app-title"><%= it.config.title %></h1>
+  <p class="muted"><%= it.config.tagline %></p>
+</hgroup>
+
+<article>
+  <header>
+    <strong>Local session</strong>
+    <span class="badge badge-<%= it.sessionState %>"><%= it.sessionState %></span>
+  </header>
+  <% if (it.sessionState === "revoked") { %>
+    <p>
+      Your local session here was revoked<% if (it.revokeReason) { %>
+      (<code><%= it.revokeReason %></code>)<% } %>.
+    </p>
+  <% } else if (it.sessionState === "expired") { %>
+    <p>Your local session here expired.</p>
+  <% } else { %>
+    <p>You are not signed in to <%= it.config.name %>.</p>
+  <% } %>
+  <footer>
+    <a href="/login" role="button">Sign in with Gapura</a>
+  </footer>
+</article>
+
+<%~ include("./partials/panels", it) %>

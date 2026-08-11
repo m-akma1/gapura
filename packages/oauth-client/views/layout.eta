@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= it.title %> - <%= it.config.name %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <style>
+    :root {
+      --pico-primary: <%= it.config.accent %>;
+      --pico-primary-background: <%= it.config.accent %>;
+      --pico-primary-hover-background: <%= it.config.accent %>;
+    }
+    .app-title {
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
+      letter-spacing: .3em;
+      font-weight: 800;
+      margin: 0;
+      color: <%= it.config.accent %>;
+    }
+    .muted { color: var(--pico-muted-color); }
+    .badge {
+      display: inline-block; padding: .1rem .5rem; border-radius: 1rem;
+      font-size: .75rem; text-transform: uppercase; letter-spacing: .08em;
+      border: 1px solid currentColor;
+    }
+    .badge-active { color: #2e7d32; }
+    .badge-revoked { color: #c62828; }
+    .badge-expired { color: #ef6c00; }
+    .badge-none { color: var(--pico-muted-color); }
+    table { font-size: .875rem; }
+    td code { font-size: .8em; }
+  </style>
+</head>
+<body>
+  <header class="container">
+    <nav>
+      <ul><li><strong><%= it.config.name %></strong></li></ul>
+      <ul>
+        <li><a href="<%= it.config.authIssuer %>">Gapura</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="container">
+    <%~ it.body %>
+  </main>
+  <footer class="container">
+    <small class="muted">
+      Local sessions are independent. Logout globally from the auth provider.
+    </small>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,7 @@
+<h1 class="app-title"><%= it.config.title %></h1>
+<article>
+  <header><strong>Something went wrong</strong></header>
+  <p><%= it.message %></p>
+  <footer><small class="muted">Reference: <code><%= it.requestId %></code></small></footer>
+</article>
+<a href="/" role="button" class="secondary">Back</a>

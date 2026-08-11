@@ -1,0 +1,44 @@
+<hgroup>
+  <h1 class="app-title"><%= it.config.title %></h1>
+  <p class="muted"><%= it.config.tagline %></p>
+</hgroup>
+
+<div class="grid">
+  <article>
+    <header><strong>Hello, <%= it.profile.name %></strong></header>
+    <p class="muted"><%= it.profile.email %></p>
+    <p>
+      <% (it.profile.groups || []).forEach(function (g) { %>
+        <span class="badge"><%= g %></span>
+      <% }) %>
+    </p>
+    <footer>
+      <small class="muted">
+        From the auth provider via the profile cache, synced
+        <%= it.profile.syncedAt.toISOString().replace("T"," ").slice(0,19) %>.
+        No credentials are stored here.
+      </small>
+    </footer>
+  </article>
+
+  <article>
+    <header>
+      <strong>Local session</strong>
+      <span class="badge badge-active">active</span>
+    </header>
+    <table>
+      <tbody>
+        <tr><td>Created</td><td><%= it.session.createdAt.toISOString().replace("T"," ").slice(0,19) %></td></tr>
+        <tr><td>Expires</td><td><%= it.session.expiresAt.toISOString().replace("T"," ").slice(0,19) %></td></tr>
+        <tr><td>Central session</td><td><code><%= it.session.centralSessionId.slice(0,8) %></code></td></tr>
+      </tbody>
+    </table>
+    <footer>
+      <form method="post" action="/logout">
+        <button type="submit" class="secondary">Log out of <%= it.config.name %> only</button>
+      </form>
+    </footer>
+  </article>
+</div>
+
+<%~ include("./partials/panels", it) %>

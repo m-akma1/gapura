@@ -1,0 +1,18 @@
+<div class="grid">
+  <section>
+    <h2>Processed events</h2>
+    <p class="muted">
+      This table filled automatically with revocations delivered by the sync worker.
+    </p>
+    <div hx-get="/fragments/processed-events" hx-trigger="every 2s" hx-swap="innerHTML">
+      <%~ include("./processed-events", it) %>
+    </div>
+  </section>
+
+  <section>
+    <h2>Activity log</h2>
+    <div hx-get="/fragments/activity" hx-trigger="every 2s" hx-swap="innerHTML">
+      <%~ include("./activity", it) %>
+    </div>
+  </section>
+</div>

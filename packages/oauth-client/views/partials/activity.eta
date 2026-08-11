@@ -1,0 +1,18 @@
+<% if (!it.activity || it.activity.length === 0) { %>
+  <p class="muted"><small>Nothing recorded yet.</small></p>
+<% } else { %>
+  <figure>
+    <table>
+      <thead><tr><th>When</th><th>Event</th><th>Correlation</th></tr></thead>
+      <tbody>
+        <% it.activity.forEach(function (a) { %>
+          <tr>
+            <td><small><%= a.createdAt.toISOString().replace("T"," ").slice(11,19) %></small></td>
+            <td><%= a.event %></td>
+            <td><code><%= a.correlationId ? a.correlationId.slice(0,8) : "-" %></code></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </figure>
+<% } %>

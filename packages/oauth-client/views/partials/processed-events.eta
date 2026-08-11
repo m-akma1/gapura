@@ -1,0 +1,19 @@
+<% if (!it.processedEvents || it.processedEvents.length === 0) { %>
+  <p class="muted"><small>No events processed yet.</small></p>
+<% } else { %>
+  <figure>
+    <table>
+      <thead><tr><th>Event</th><th>Type</th><th>Processed</th><th>Result</th></tr></thead>
+      <tbody>
+        <% it.processedEvents.forEach(function (e) { %>
+          <tr>
+            <td><code><%= e.eventId.slice(0,8) %></code></td>
+            <td><%= e.eventType %></td>
+            <td><small><%= e.processedAt.toISOString().replace("T"," ").slice(11,19) %></small></td>
+            <td><%= e.result %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </figure>
+<% } %>
