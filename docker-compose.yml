@@ -142,6 +142,62 @@ services:
       retries: 6
       start_period: 15s
 
+  keraton:
+    build:
+      context: .
+      dockerfile: docker/node.Dockerfile
+      args:
+        SERVICE_PATH: applications/keraton
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/keraton
+      AUTH_ISSUER: ${AUTH_ISSUER}
+      KERATON_BASE_URL: ${KERATON_BASE_URL}
+      KERATON_CLIENT_ID: ${KERATON_CLIENT_ID}
+      KERATON_CLIENT_SECRET: ${KERATON_CLIENT_SECRET}
+      LOGOUT_SIGNING_SECRET_KERATON: ${LOGOUT_SIGNING_SECRET_KERATON}
+      LOCAL_SESSION_TTL_SECONDS: ${LOCAL_SESSION_TTL_SECONDS}
+      LOG_LEVEL: ${LOG_LEVEL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+
+  joglo:
+    build:
+      context: .
+      dockerfile: docker/node.Dockerfile
+      args:
+        SERVICE_PATH: applications/joglo
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/joglo
+      AUTH_ISSUER: ${AUTH_ISSUER}
+      JOGLO_BASE_URL: ${JOGLO_BASE_URL}
+      JOGLO_CLIENT_ID: ${JOGLO_CLIENT_ID}
+      JOGLO_CLIENT_SECRET: ${JOGLO_CLIENT_SECRET}
+      LOGOUT_SIGNING_SECRET_JOGLO: ${LOGOUT_SIGNING_SECRET_JOGLO}
+      LOCAL_SESSION_TTL_SECONDS: ${LOCAL_SESSION_TTL_SECONDS}
+      LOG_LEVEL: ${LOG_LEVEL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 10s
+
   proxy:
     image: caddy:2-alpine
     restart: unless-stopped
