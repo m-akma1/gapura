@@ -26,6 +26,9 @@ importers:
       '@gapura/http-kit':
         specifier: workspace:*
         version: link:../../packages/http-kit
+      '@gapura/oauth-client':
+        specifier: workspace:*
+        version: link:../../packages/oauth-client
       '@prisma/adapter-pg':
         specifier: 7.9.1
         version: 7.9.1
@@ -54,6 +57,9 @@ importers:
       '@gapura/http-kit':
         specifier: workspace:*
         version: link:../../packages/http-kit
+      '@gapura/oauth-client':
+        specifier: workspace:*
+        version: link:../../packages/oauth-client
       '@prisma/adapter-pg':
         specifier: 7.9.1
         version: 7.9.1
@@ -225,6 +231,37 @@ importers:
       fastify-plugin:
         specifier: ^5.1.0
         version: 5.1.0
+    devDependencies:
+      '@types/node':
+        specifier: ^22.20.1
+        version: 22.20.1
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  packages/oauth-client:
+    dependencies:
+      '@fastify/cookie':
+        specifier: ^11.0.2
+        version: 11.1.2
+      '@fastify/formbody':
+        specifier: ^8.0.2
+        version: 8.0.2
+      '@gapura/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@gapura/crypto':
+        specifier: workspace:*
+        version: link:../crypto
+      '@gapura/http-kit':
+        specifier: workspace:*
+        version: link:../http-kit
+      eta:
+        specifier: ^4.1.1
+        version: 4.6.0
+      fastify:
+        specifier: ^5.6.1
+        version: 5.12.1
     devDependencies:
       '@types/node':
         specifier: ^22.20.1

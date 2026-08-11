@@ -1,0 +1,29 @@
+{
+  "name": "@gapura/oauth-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/formbody": "^8.0.2",
+    "@gapura/contracts": "workspace:*",
+    "@gapura/crypto": "workspace:*",
+    "@gapura/http-kit": "workspace:*",
+    "eta": "^4.1.1",
+    "fastify": "^5.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "typescript": "^5.9.3"
+  }
+}
