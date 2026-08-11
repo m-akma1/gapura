@@ -1,7 +1,7 @@
 import cookie from "@fastify/cookie";
 import formbody from "@fastify/formbody";
 import { createPrismaClient, type PrismaClient } from "@gapura/auth-core";
-import { errorHandler, requestId } from "@gapura/http-kit";
+import { errorHandler, health, requestId } from "@gapura/http-kit";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { ServerEnv } from "./env.js";
 import { registerAuthRoutes } from "./routes/auth.js";
@@ -9,7 +9,7 @@ import { registerAuthorizeRoutes } from "./routes/authorize.js";
 import { registerHomeRoutes } from "./routes/home.js";
 import { registerLogoutRoutes } from "./routes/logout.js";
 import { registerTokenRoutes } from "./routes/token.js";
-import { registerHealthRoutes } from "./routes/health.js";
+import { serverChecks } from "./routes/health.js";
 import { renderPage } from "./views.js";
 
 export interface AppContext {
@@ -47,7 +47,7 @@ export function buildApp(env: ServerEnv): FastifyInstance {
         ),
   });
 
-  void app.register(registerHealthRoutes);
+  void app.register(health, { checks: serverChecks(app.ctx.prisma, env) });
   void app.register(registerHomeRoutes);
   void app.register(registerAuthRoutes);
   void app.register(registerAuthorizeRoutes);

@@ -1,7 +1,7 @@
 import cookie from "@fastify/cookie";
 import formbody from "@fastify/formbody";
 import { createPrismaClient, type PrismaClient } from "@gapura/auth-core";
-import { errorHandler, requestId } from "@gapura/http-kit";
+import { errorHandler, health, requestId } from "@gapura/http-kit";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { PanelEnv } from "./env.js";
 import { registerGuard } from "./guard.js";
@@ -41,14 +41,16 @@ export function buildApp(env: PanelEnv): FastifyInstance {
         .send(renderPage("error", view, { title: "Error" })),
   });
 
-  // Caddy forwards the full path, every route mounted under /admin.
-  app.get("/admin/healthz", async (_request, reply) => {
-    try {
-      await app.ctx.prisma.$queryRaw`SELECT 1`;
-      return { status: "ok" };
-    } catch {
-      return reply.status(503).send({ status: "unavailable" });
-    }
+  void app.register(health, {
+    pathPrefix: "/admin",
+    checks: [
+      {
+        name: "database",
+        run: async () => {
+          await app.ctx.prisma.$queryRaw`SELECT 1`;
+        },
+      },
+    ],
   });
 
   void app.register(registerGuard);

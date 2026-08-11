@@ -1,12 +1,21 @@
-import type { FastifyInstance } from "fastify";
+import { checkRabbitHealth, type CheckDefinition } from "@gapura/lifecycle";
+import type { PrismaClient } from "@gapura/auth-core";
+import type { ServerEnv } from "../env.js";
 
-export async function registerHealthRoutes(app: FastifyInstance): Promise<void> {
-  app.get("/healthz", async (_request, reply) => {
-    try {
-      await app.ctx.prisma.$queryRaw`SELECT 1`;
-      return { status: "ok" };
-    } catch {
-      return reply.status(503).send({ status: "unavailable" });
-    }
-  });
+export function serverChecks(
+  prisma: PrismaClient,
+  env: ServerEnv,
+): CheckDefinition[] {
+  return [
+    {
+      name: "database",
+      run: async () => {
+        await prisma.$queryRaw`SELECT 1`;
+      },
+    },
+    {
+      name: "broker",
+      run: () => checkRabbitHealth(env.rabbitManagement),
+    },
+  ];
 }

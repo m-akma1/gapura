@@ -96,13 +96,4 @@ export async function registerHomeRoutes(app: FastifyInstance): Promise<void> {
       .type("text/html; charset=utf-8")
       .send(renderPartial("partials/activity", panels));
   });
-
-  app.get("/healthz", async (_request, reply) => {
-    try {
-      await store.processedEvent.findMany({ orderBy: { processedAt: "desc" }, take: 1 });
-      return { status: "ok" };
-    } catch {
-      return reply.status(503).send({ status: "unavailable" });
-    }
-  });
 }

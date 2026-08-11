@@ -1,6 +1,6 @@
 import cookie from "@fastify/cookie";
 import formbody from "@fastify/formbody";
-import { errorHandler, requestId } from "@gapura/http-kit";
+import { errorHandler, health, requestId } from "@gapura/http-kit";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { RelyingAppConfig } from "./config.js";
 import { registerAuthRoutes } from "./routes/auth.js";
@@ -39,6 +39,20 @@ export function createRelyingApp(
       reply
         .type("text/html; charset=utf-8")
         .send(renderPage("error", view, { config, title: "Error" })),
+  });
+
+  void app.register(health, {
+    checks: [
+      {
+        name: "database",
+        run: async () => {
+          await store.processedEvent.findMany({
+            orderBy: { processedAt: "desc" },
+            take: 1,
+          });
+        },
+      },
+    ],
   });
 
   void app.register(registerHomeRoutes);
