@@ -1,4 +1,5 @@
 import { createPrismaClient } from "@gapura/auth-core";
+import { gracefulShutdown } from "@gapura/lifecycle";
 import pino from "pino";
 import { loadWorkerEnv } from "./env.js";
 import { buildProbeServer, type ProbeState } from "./probes.js";
@@ -17,19 +18,27 @@ log.info({ port: env.port }, "probe server listening");
 
 await session.start();
 
-let stopping = false;
-const shutdown = async (): Promise<void> => {
-  if (stopping) return;
-  stopping = true;
-  log.info("shutting down");
-  await probes.close().catch(() => undefined);
-  await session.stop();
-  await prisma.$disconnect().catch(() => undefined);
-  process.exit(0);
-};
-
-for (const signal of ["SIGTERM", "SIGINT"] as const) {
-  process.on(signal, () => void shutdown());
-}
+gracefulShutdown({
+  onEvent: (event) => log.info(event, "shutdown"),
+  steps: [
+    {
+      name: "readiness",
+      run: async () => {
+        state.draining = true;
+      },
+    },
+    { name: "stop-consuming", run: () => session.stopConsuming() },
+    {
+      name: "drain",
+      run: async () => {
+        log.info({ inFlight: session.inFlightCount }, "draining deliveries");
+        await session.drain();
+      },
+    },
+    { name: "probes", run: () => probes.close() },
+    { name: "broker", run: () => session.stop() },
+    { name: "database", run: () => prisma.$disconnect() },
+  ],
+});
 
 log.info("sync worker ready");

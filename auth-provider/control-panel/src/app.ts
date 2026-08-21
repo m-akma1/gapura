@@ -23,7 +23,10 @@ declare module "fastify" {
   }
 }
 
-export function buildApp(env: PanelEnv): FastifyInstance {
+export function buildApp(
+  env: PanelEnv,
+  isDraining: () => boolean = () => false,
+): FastifyInstance {
   const app = Fastify({
     logger: { level: env.logLevel },
     trustProxy: true,
@@ -42,6 +45,7 @@ export function buildApp(env: PanelEnv): FastifyInstance {
   });
 
   void app.register(health, {
+    isDraining,
     pathPrefix: "/admin",
     checks: [
       {

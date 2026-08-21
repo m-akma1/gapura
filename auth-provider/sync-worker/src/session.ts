@@ -84,13 +84,24 @@ export class BrokerSession {
     }
   }
 
-  /** Drops references without closing, since the transport is already gone. */
   private async disposeCurrent(): Promise<void> {
     await this.relay?.stop();
     this.relay = undefined;
     this.consumer = undefined;
     this.channel = undefined;
     this.connection = undefined;
+  }
+
+  async stopConsuming(): Promise<void> {
+    await this.consumer?.stopConsuming();
+  }
+
+  async drain(): Promise<void> {
+    await this.consumer?.drain();
+  }
+
+  get inFlightCount(): number {
+    return this.consumer?.inFlightCount ?? 0;
   }
 
   async stop(): Promise<void> {

@@ -1,6 +1,7 @@
 import cookie from "@fastify/cookie";
 import formbody from "@fastify/formbody";
 import { errorHandler, health, requestId } from "@gapura/http-kit";
+import { gracefulShutdown } from "@gapura/lifecycle";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { RelyingAppConfig } from "./config.js";
 import { registerAuthRoutes } from "./routes/auth.js";
@@ -23,6 +24,7 @@ declare module "fastify" {
 export function createRelyingApp(
   config: RelyingAppConfig,
   store: LocalStore,
+  isDraining: () => boolean = () => false,
 ): FastifyInstance {
   const app = Fastify({
     logger: { level: config.logLevel },
@@ -42,6 +44,7 @@ export function createRelyingApp(
   });
 
   void app.register(health, {
+    isDraining,
     checks: [
       {
         name: "database",
@@ -67,16 +70,22 @@ export async function runRelyingApp(
   store: LocalStore,
   onClose: () => Promise<void>,
 ): Promise<void> {
-  const app = createRelyingApp(config, store);
+  const state = { draining: false };
+  const app = createRelyingApp(config, store, () => state.draining);
 
-  for (const signal of ["SIGTERM", "SIGINT"] as const) {
-    process.on(signal, () => {
-      void app
-        .close()
-        .then(onClose)
-        .then(() => process.exit(0));
-    });
-  }
+  gracefulShutdown({
+    onEvent: (event) => app.log.info(event, "shutdown"),
+    steps: [
+      {
+        name: "readiness",
+        run: async () => {
+          state.draining = true;
+        },
+      },
+      { name: "http", run: () => app.close() },
+      { name: "database", run: onClose },
+    ],
+  });
 
   try {
     await app.listen({ port: config.port, host: config.host });

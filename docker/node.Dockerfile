@@ -28,4 +28,4 @@ ENV SERVICE_PATH=${SERVICE_PATH}
 ENV NODE_ENV=production
 COPY --from=build /repo /repo
 USER node
-CMD node ${SERVICE_PATH}/dist/main.js
+CMD exec node ${SERVICE_PATH}/dist/main.js

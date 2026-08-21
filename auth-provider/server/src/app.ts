@@ -23,7 +23,10 @@ declare module "fastify" {
   }
 }
 
-export function buildApp(env: ServerEnv): FastifyInstance {
+export function buildApp(
+  env: ServerEnv,
+  isDraining: () => boolean = () => false,
+): FastifyInstance {
   const app = Fastify({
     logger: { level: env.logLevel },
     trustProxy: true,
@@ -47,7 +50,10 @@ export function buildApp(env: ServerEnv): FastifyInstance {
         ),
   });
 
-  void app.register(health, { checks: serverChecks(app.ctx.prisma, env) });
+  void app.register(health, {
+    isDraining,
+    checks: serverChecks(app.ctx.prisma, env),
+  });
   void app.register(registerHomeRoutes);
   void app.register(registerAuthRoutes);
   void app.register(registerAuthorizeRoutes);
