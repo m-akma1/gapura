@@ -13,7 +13,10 @@
     "@gapura/auth-core": "workspace:*",
     "@gapura/contracts": "workspace:*",
     "@gapura/crypto": "workspace:*",
+    "@gapura/http-kit": "workspace:*",
+    "@gapura/lifecycle": "workspace:*",
     "amqplib": "^0.10.9",
+    "fastify": "^5.6.1",
     "pino": "^9.13.1"
   },
   "devDependencies": {

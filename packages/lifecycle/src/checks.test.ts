@@ -93,3 +93,21 @@ test("an empty check list is ready", async () => {
   const report = await runChecks([]);
   assert.equal(report.status, "ready");
 });
+
+test("a blank leading line does not produce an empty detail", async () => {
+  const padded = async (): Promise<void> => {
+    throw new Error("\n\n  Can't reach database server at db:5432  \n at Foo");
+  };
+  const report = await runChecks([{ name: "database", run: padded }]);
+  const detail = report.checks["database"]?.error ?? "";
+  assert.notEqual(detail, "", "detail was empty, so the 503 explains nothing");
+  assert.equal(detail, "Can't reach database server at db:5432");
+});
+
+test("an error with no message at all still says something", async () => {
+  const blank = async (): Promise<void> => {
+    throw new Error("");
+  };
+  const report = await runChecks([{ name: "database", run: blank }]);
+  assert.notEqual(report.checks["database"]?.error, "");
+});

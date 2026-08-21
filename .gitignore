@@ -144,3 +144,6 @@ vite.config.ts.timestamp-*
 
 # Prisma 7 generated
 **/src/generated/
+
+# Test Objects
+.test-dist/

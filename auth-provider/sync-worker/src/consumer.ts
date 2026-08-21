@@ -18,6 +18,8 @@ interface Delivery {
 }
 
 export class DeliveryConsumer {
+  private readonly consumerTags: string[] = [];
+
   constructor(
     private readonly prisma: PrismaClient,
     private readonly channel: Channel,
@@ -26,11 +28,18 @@ export class DeliveryConsumer {
   ) {}
 
   async consume(queue: string): Promise<void> {
-    await this.channel.consume(queue, (message) => {
+    const { consumerTag } = await this.channel.consume(queue, (message) => {
       if (message === null) return;
       void this.handle(message);
     });
-    this.log.info({ queue }, "consuming");
+    // Kept so shutdown can cancel consumption before draining. See main.ts.
+    this.consumerTags.push(consumerTag);
+    this.log.info({ queue, consumerTag }, "consuming");
+  }
+
+  /** True while the channel is usable, which readiness reports on. */
+  get isConsuming(): boolean {
+    return this.consumerTags.length > 0;
   }
 
   private async handle(message: ConsumeMessage): Promise<void> {

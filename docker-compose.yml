@@ -131,7 +131,9 @@ services:
       DELIVERY_TIMEOUT_MS: ${DELIVERY_TIMEOUT_MS}
       LOGOUT_SIGNING_SECRET_KERATON: ${LOGOUT_SIGNING_SECRET_KERATON}
       LOGOUT_SIGNING_SECRET_JOGLO: ${LOGOUT_SIGNING_SECRET_JOGLO}
-      LIVENESS_FILE: /tmp/worker.alive
+      RABBITMQ_MANAGEMENT_URL: ${RABBITMQ_MANAGEMENT_URL}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
       LOG_LEVEL: ${LOG_LEVEL}
     depends_on:
       postgres:
@@ -141,7 +143,7 @@ services:
       migrator:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "node", "-e", "const{statSync}=require('fs');process.exit(Date.now()-statSync('/tmp/worker.alive').mtimeMs<30000?0:1)"]
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 10s
       timeout: 5s
       retries: 6

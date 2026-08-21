@@ -32,9 +32,15 @@ async function withTimeout(run: Check, timeoutMs: number): Promise<void> {
 }
 
 function describe(error: unknown): string {
-  const raw = error instanceof Error ? error.message : "check failed";
-  const firstLine = raw.split("\n")[0] ?? "check failed";
-  return firstLine.slice(0, 120);
+  if (!(error instanceof Error)) return "check failed";
+  // Some drivers put a blank first line before the useful text, so take the
+  // first line that actually says something. An empty detail names the failing
+  // component without explaining it, which is the point of the field.
+  const line = error.message
+    .split("\n")
+    .map((part) => part.trim())
+    .find((part) => part.length > 0);
+  return (line ?? error.name ?? "check failed").slice(0, 120);
 }
 
 export async function runChecks(

@@ -28,7 +28,6 @@ export class OutboxRelay {
     private readonly channel: Channel,
     private readonly log: Logger,
     private readonly options: { intervalMs: number; batchSize: number },
-    private readonly onTick?: () => void,
   ) {}
 
   start(): void {
@@ -49,7 +48,6 @@ export class OutboxRelay {
     try {
       const published = await this.publishBatch();
       if (published > 0) this.log.info({ published }, "outbox batch published");
-      this.onTick?.();
     } catch (error) {
       this.log.error({ err: error }, "outbox tick failed");
     } finally {

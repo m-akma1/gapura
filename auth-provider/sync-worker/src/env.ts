@@ -1,4 +1,5 @@
 import { optionalInt, required } from "@gapura/auth-core";
+import type { RabbitManagementConfig } from "@gapura/lifecycle";
 
 export interface WorkerEnv {
   databaseUrl: string;
@@ -7,7 +8,9 @@ export interface WorkerEnv {
   outboxPollIntervalMs: number;
   outboxBatchSize: number;
   deliveryTimeoutMs: number;
-  livenessFile: string;
+  port: number;
+  host: string;
+  rabbitManagement: RabbitManagementConfig;
   signingSecrets: Map<string, string>;
 }
 
@@ -29,7 +32,13 @@ export function loadWorkerEnv(): WorkerEnv {
     outboxPollIntervalMs: optionalInt("OUTBOX_POLL_INTERVAL_MS", 500),
     outboxBatchSize: optionalInt("OUTBOX_BATCH_SIZE", 20),
     deliveryTimeoutMs: optionalInt("DELIVERY_TIMEOUT_MS", 5000),
-    livenessFile: process.env["LIVENESS_FILE"] ?? "/tmp/worker.alive",
+    port: optionalInt("PORT", 3000),
+    host: process.env["HOST"] ?? "0.0.0.0",
+    rabbitManagement: {
+      baseUrl: required("RABBITMQ_MANAGEMENT_URL"),
+      username: required("RABBITMQ_USER"),
+      password: required("RABBITMQ_PASSWORD"),
+    },
     signingSecrets: collectSigningSecrets(),
   };
 }
