@@ -22,3 +22,7 @@ export function renderPage(
   const body = eta.render(template, data);
   return eta.render("layout", { ...layout, body });
 }
+
+export function renderPartial(template: string, data: object): string {
+  return eta.render(template, data);
+}

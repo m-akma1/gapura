@@ -1,0 +1,90 @@
+<section>
+  <h2>Queue depth</h2>
+  <div class="grid">
+    <% it.data.queues.forEach(function (q) { %>
+      <article>
+        <strong style="font-size:2rem"><%= q.ready %></strong>
+        <br><small class="muted"><code><%= q.name %></code> waiting</small>
+        <% if (q.unacked > 0) { %>
+          <br><small class="muted"><%= q.unacked %> in flight</small>
+        <% } %>
+      </article>
+    <% }) %>
+    <article<%= it.data.awaitingRetry > 0 ? ' style="border-color:#ef6c00"' : "" %>>
+      <strong style="font-size:2rem"><%= it.data.awaitingRetry %></strong>
+      <br><small class="muted">awaiting retry</small>
+    </article>
+    <article<%= it.data.dlq && it.data.dlq.total > 0 ? ' style="border-color:#c62828"' : "" %>>
+      <strong style="font-size:2rem"><%= it.data.dlq ? it.data.dlq.total : "?" %></strong>
+      <br><small class="muted">dead-lettered</small>
+    </article>
+    <article>
+      <strong style="font-size:2rem"><%= it.data.delivery.pendingOutbox %></strong>
+      <br><small class="muted">outbox pending</small>
+    </article>
+  </div>
+</section>
+
+<div class="grid">
+  <section>
+    <h2>Request latency and errors</h2>
+    <figure>
+      <table>
+        <thead><tr><th>Service</th><th>Requests</th><th>Errors</th><th>p50</th><th>p95</th></tr></thead>
+        <tbody>
+          <% it.data.services.forEach(function (s) { %>
+            <tr>
+              <td><%= s.name %><% if (!s.reachable) { %> <span class="badge">unreachable</span><% } %></td>
+              <td><%= s.requests %></td>
+              <td><%= s.errors %> (<%= (s.errorRate * 100).toFixed(1) %>%)</td>
+              <td><%= s.p50Ms === null ? "-" : s.p50Ms + " ms" %></td>
+              <td><%= s.p95Ms === null ? "-" : s.p95Ms + " ms" %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Event delivery</h2>
+    <figure>
+      <table>
+        <tbody>
+          <% it.data.delivery.outcomes.forEach(function (o) { %>
+            <tr><td><%= o.status %></td><td><%= o.count %></td></tr>
+          <% }) %>
+          <% if (it.data.delivery.outcomes.length === 0) { %>
+            <tr><td class="muted" colspan="2">No deliveries in the last 15 minutes.</td></tr>
+          <% } %>
+          <tr>
+            <td>latency p50</td>
+            <td><%= it.data.delivery.latencyP50Ms === null ? "-" : it.data.delivery.latencyP50Ms + " ms" %></td>
+          </tr>
+          <tr>
+            <td>latency max</td>
+            <td><%= it.data.delivery.latencyMaxMs === null ? "-" : it.data.delivery.latencyMaxMs + " ms" %></td>
+          </tr>
+          <tr><td>needed a retry</td><td><%= it.data.delivery.retrying %></td></tr>
+          <tr>
+            <td>worker last seen</td>
+            <td>
+              <% if (it.data.delivery.workerLastSeen) { %>
+                <%= it.data.delivery.workerLastSeen.toISOString().replace("T"," ").slice(11,19) %>
+              <% } else { %>
+                <span class="muted">no deliveries yet</span>
+              <% } %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </figure>
+  </section>
+</div>
+
+<p class="muted">
+  <small>
+    Collected <%= it.data.collectedAt.toISOString().replace("T"," ").slice(11,19) %>.
+    Prometheus format at <code>/admin/metrics</code>.
+  </small>
+</p>

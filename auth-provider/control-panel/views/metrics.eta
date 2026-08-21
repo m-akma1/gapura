@@ -1,0 +1,11 @@
+<hgroup>
+  <h1>Observability</h1>
+  <p class="muted">
+    Queue depth from RabbitMQ, delivery figures from the database, and 
+    request latency from each service.
+  </p>
+</hgroup>
+
+<div hx-get="/admin/fragments/metrics" hx-trigger="every 2s" hx-swap="innerHTML">
+  <%~ include("./partials/metrics", it) %>
+</div>

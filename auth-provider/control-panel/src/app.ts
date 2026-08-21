@@ -7,6 +7,7 @@ import type { PanelEnv } from "./env.js";
 import { registerGuard } from "./guard.js";
 import { registerApplicationRoutes } from "./routes/applications.js";
 import { registerDashboardRoutes } from "./routes/dashboard.js";
+import { registerMetricsRoutes } from "./routes/metrics.js";
 import { registerGroupRoutes } from "./routes/groups.js";
 import { registerMembershipRoutes } from "./routes/membership.js";
 import { registerUserRoutes } from "./routes/users.js";
@@ -60,6 +61,7 @@ export function buildApp(
 
   void app.register(registerGuard);
   void app.register(registerDashboardRoutes);
+  void app.register(registerMetricsRoutes);
   void app.register(registerUserRoutes);
   void app.register(registerGroupRoutes);
   void app.register(registerApplicationRoutes);

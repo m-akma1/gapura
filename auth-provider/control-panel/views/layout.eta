@@ -26,6 +26,7 @@
         <li><a href="/admin/users" <%= it.activeNav === "users" ? 'aria-current="page"' : "" %>>Users</a></li>
         <li><a href="/admin/groups" <%= it.activeNav === "groups" ? 'aria-current="page"' : "" %>>Groups</a></li>
         <li><a href="/admin/applications" <%= it.activeNav === "applications" ? 'aria-current="page"' : "" %>>Applications</a></li>
+        <li><a href="/admin/observability" <%= it.activeNav === "metrics" ? 'aria-current="page"' : "" %>>Observability</a></li>
         <% if (it.currentUser) { %><li class="muted"><%= it.currentUser.name %></li><% } %>
       </ul>
     </nav>
