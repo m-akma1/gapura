@@ -15,7 +15,12 @@ declare module "fastify" {
   }
 }
 
-const PUBLIC_PATHS = new Set(["/admin/health/live", "/admin/health/ready"]);
+const PUBLIC_PATHS = new Set([
+  "/admin/health/live",
+  "/admin/health/ready",
+  "/admin/metrics",
+  "/admin/internal/metrics.json",
+]);
 
 async function guardPlugin(app: FastifyInstance): Promise<void> {
   const { prisma, env } = app.ctx;

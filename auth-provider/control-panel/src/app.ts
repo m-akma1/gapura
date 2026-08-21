@@ -1,7 +1,7 @@
 import cookie from "@fastify/cookie";
 import formbody from "@fastify/formbody";
 import { createPrismaClient, type PrismaClient } from "@gapura/auth-core";
-import { errorHandler, health, requestId } from "@gapura/http-kit";
+import { errorHandler, health, metrics, requestId } from "@gapura/http-kit";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { PanelEnv } from "./env.js";
 import { registerGuard } from "./guard.js";
@@ -44,6 +44,7 @@ export function buildApp(
         .send(renderPage("error", view, { title: "Error" })),
   });
 
+  void app.register(metrics, { pathPrefix: "/admin" });
   void app.register(health, {
     isDraining,
     pathPrefix: "/admin",

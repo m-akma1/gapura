@@ -1,7 +1,7 @@
 import cookie from "@fastify/cookie";
 import formbody from "@fastify/formbody";
 import { createPrismaClient, type PrismaClient } from "@gapura/auth-core";
-import { errorHandler, health, requestId } from "@gapura/http-kit";
+import { errorHandler, health, metrics, requestId } from "@gapura/http-kit";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { ServerEnv } from "./env.js";
 import { registerAuthRoutes } from "./routes/auth.js";
@@ -50,6 +50,7 @@ export function buildApp(
         ),
   });
 
+  void app.register(metrics, {});
   void app.register(health, {
     isDraining,
     checks: serverChecks(app.ctx.prisma, env),

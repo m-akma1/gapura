@@ -1,6 +1,6 @@
 import cookie from "@fastify/cookie";
 import formbody from "@fastify/formbody";
-import { errorHandler, health, requestId } from "@gapura/http-kit";
+import { errorHandler, health, metrics, requestId } from "@gapura/http-kit";
 import { gracefulShutdown } from "@gapura/lifecycle";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { RelyingAppConfig } from "./config.js";
@@ -43,6 +43,7 @@ export function createRelyingApp(
         .send(renderPage("error", view, { config, title: "Error" })),
   });
 
+  void app.register(metrics, {});
   void app.register(health, {
     isDraining,
     checks: [
